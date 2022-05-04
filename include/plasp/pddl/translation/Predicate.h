@@ -63,17 +63,17 @@ inline void translatePredicate(colorlog::ColorStream &outputStream, const ::pddl
 
 inline void translatePredicateDeclaration(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::PredicateDeclaration &predicateDeclaration, VariableIDMap &variableIDs)
 {
-	outputStream << colorlog::Keyword("variable") << "(";
+	outputStream << "#ground predicate[";
 
 	if (predicateDeclaration.parameters.empty())
 	{
-		outputStream << predicateDeclaration << ")";
+		outputStream << predicateDeclaration.name << ".";
 		return;
 	}
 
-	outputStream << "(" << predicateDeclaration;
+	outputStream << predicateDeclaration.name << "(";
 	translateVariablesForRuleHead(outputStream, predicateDeclaration.parameters, variableIDs);
-	outputStream << "))";
+	outputStream << ")]." << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -37,7 +37,7 @@ class Effect
 		const Condition &postcondition() const;
 
 	private:
-		Effect() = default;
+		//Effect() = default;
 		explicit Effect(Conditions conditions, Condition postcondition);
 
 		Conditions m_conditions;

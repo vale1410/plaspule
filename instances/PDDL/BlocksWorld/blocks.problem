@@ -1,0 +1,5 @@
+(define (problem blocks-ab-from-table1-to-stacked-ab-table3)
+  (:domain blocksworld)
+  (:objects a - block b - block t1 - table t2 - table t3 - table)
+  (:init (on a b) (on b t1) (clear a) (clear t2) (clear t3))
+  (:goal (and (on a b) (on b t3))))

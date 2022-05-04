@@ -30,9 +30,14 @@ void translateVariablesForRuleBody(colorlog::ColorStream &outputStream, const T 
 template<class T>
 inline void translateVariablesForRuleHead(colorlog::ColorStream &outputStream, const T &variables, VariableIDMap &variableIDs)
 {
+    bool first = true;
 	for (const auto &variable : variables)
 	{
-		outputStream << ", ";
+	    if (first) {
+	        first = false;
+	    } else {
+            outputStream << ",";
+        }
 		translateVariableDeclaration(outputStream, *variable, variableIDs);
 	}
 }
@@ -49,18 +54,19 @@ void translateVariablesForRuleBody(colorlog::ColorStream &outputStream, const T 
 
 		if (variable->type)
 		{
-			if (!variable->type.value().template is<::pddl::normalizedAST::PrimitiveTypePointer>())
+            if (!variable->type.value().template is<::pddl::normalizedAST::PrimitiveTypePointer>())
 				throw TranslatorException("only primitive types supported currently");
 
 			const auto &type = variable->type.value().template get<::pddl::normalizedAST::PrimitiveTypePointer>();
 
-			outputStream << colorlog::Function("has") << "(";
+			outputStream << "objects" << "[";
 			translateVariableDeclaration(outputStream, *variable, variableIDs);
-			outputStream << ", " << colorlog::Keyword("type") << "(" << *type << "))";
+			outputStream << ", " << type->declaration->name << "]";
 		}
 		else
 		{
-			outputStream << colorlog::Function("has") << "(";
+            outputStream << colorlog::Function("TODO");
+            outputStream << colorlog::Function("has") << "(";
 			translateVariableDeclaration(outputStream, *variable, variableIDs);
 			outputStream << ", " << colorlog::Keyword("type") << "(" << colorlog::String("object") << "))";
 		}

@@ -37,7 +37,7 @@ class AxiomRule
 		const Condition &postcondition() const;
 
 	private:
-		AxiomRule() = default;
+		//AxiomRule() = default;
 		explicit AxiomRule(Conditions conditions, Condition postcondition);
 
 		Conditions m_conditions;

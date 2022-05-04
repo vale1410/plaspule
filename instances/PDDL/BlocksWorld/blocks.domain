@@ -1,0 +1,23 @@
+(define (domain blocksworld)
+  (:requirements :strips :typing)
+
+  (:types block - object table - object)
+
+  (:predicates (on ?x - block ?y - object) (clear ?x - object))
+
+  (:action move
+     :parameters (?b - block ?x - table ?y - table)
+     :precondition (and (on ?b ?x) (clear ?b) (clear ?y))
+     :effect (and (not (on ?b ?x)) (not (clear ?y))
+                  (on ?b ?y) (clear ?x)))
+  (:action stack
+     :parameters (?a - block ?x - object ?b - block)
+     :precondition (and (on ?a ?x) (clear ?a) (clear ?b))
+     :effect (and (not (on ?a ?x)) (not (clear ?b))
+                  (on ?a ?b) (clear ?x)))
+  (:action unstack
+     :parameters (?a - block ?b - block ?y - object)
+     :precondition (and (on ?a ?b) (clear ?a) (clear ?y))
+     :effect (and (not (on ?a ?b)) (not (clear ?y))
+                  (on ?a ?y) (clear ?b) (clear ?a))))
+

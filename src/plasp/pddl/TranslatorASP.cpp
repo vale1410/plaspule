@@ -56,9 +56,9 @@ void TranslatorASP::translateDomain() const
 
 	const auto &domain = m_description.domain;
 
-	// Utils
-	m_outputStream << std::endl;
-	translateUtils();
+	//// Utils
+	//m_outputStream << std::endl;
+	//translateUtils();
 
 	// Types
 	m_outputStream << std::endl;
@@ -115,47 +115,17 @@ void TranslatorASP::translateTypes() const
 
 	const auto &types = m_description.domain->types;
 
-	if (types.empty())
-	{
-		m_outputStream
-			<< colorlog::Function("type") << "("
-			<< colorlog::Keyword("type") << "(" << colorlog::String("object") << "))." << std::endl;
-
-		return;
-	}
-
 	for (const auto &type : types)
 	{
-		m_outputStream
-			<< colorlog::Function("type") << "("
-			<< colorlog::Keyword("type") << "("
-			<< *type
-			<< "))." << std::endl;
-
 		const auto &parentTypes = type->parentTypes;
+
 
 		std::for_each(parentTypes.cbegin(), parentTypes.cend(),
 			[&](const auto &parentType)
 			{
-				m_outputStream
-					<< colorlog::Function("inherits") << "(" << colorlog::Keyword("type")
-					<< "(" << *type << "), " << colorlog::Keyword("type")
-					<< "(" << *parentType << "))." << std::endl;
+            m_outputStream << "#ground objects[" << type->name << "," << parentType->declaration->name << "]." << std::endl;
 			});
 	}
-
-	m_outputStream
-		<< std::endl
-		<< colorlog::Function("has") << "("
-		<< colorlog::Variable("X") << ", "
-		<< colorlog::Keyword("type") << "(" << colorlog::Variable("T2") << ")) :- "
-		<< colorlog::Function("has") << "("
-		<< colorlog::Variable("X") << ", "
-		<< colorlog::Keyword("type") << "(" << colorlog::Variable("T1") << ")), "
-		<< colorlog::Function("inherits") << "("
-		<< colorlog::Keyword("type") << "(" << colorlog::Variable("T1") << "), "
-		<< colorlog::Keyword("type") << "(" << colorlog::Variable("T2") << "))."
-		<< std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -170,32 +140,26 @@ void TranslatorASP::translatePredicates() const
 	{
 		VariableIDMap variableIDs;
 
-		m_outputStream << std::endl << colorlog::Function("variable") << "(";
-
-		translatePredicateDeclaration(m_outputStream, *predicate, variableIDs);
-
-		m_outputStream << ")";
+		m_outputStream << std::endl;
 
 		if (!predicate->parameters.empty())
 		{
-			m_outputStream << " :- ";
-
-			VariableIDMap variableIDs;
-
 			translateVariablesForRuleBody(m_outputStream, predicate->parameters, variableIDs);
+            m_outputStream << " :: ";
 		}
 
-		m_outputStream << ".";
+        translatePredicateDeclaration(m_outputStream, *predicate, variableIDs);
+
 	}
 
-	m_outputStream
-		<< std::endl << std::endl
-		<< colorlog::Function("contains") << "("
-		<< colorlog::Variable("X") << ", "
-		<< colorlog::Keyword("value") << "(" << colorlog::Variable("X") << ", " << colorlog::Variable("B") << ")) :- "
-		<< colorlog::Function("variable") << "(" << colorlog::Variable("X") << "), "
-		<< colorlog::Function("boolean") << "(" << colorlog::Variable("B") << ")."
-		<< std::endl;
+//	m_outputStream
+//		<< std::endl << std::endl
+//		<< colorlog::Function("contains") << "("
+//		<< colorlog::Variable("X") << ", "
+//		<< colorlog::Keyword("value") << "(" << colorlog::Variable("X") << ", " << colorlog::Variable("B") << ")) :- "
+//		<< colorlog::Function("variable") << "(" << colorlog::Variable("X") << "), "
+//		<< colorlog::Function("boolean") << "(" << colorlog::Variable("B") << ")."
+//		<< std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -316,17 +280,17 @@ void TranslatorASP::translateActions() const
 		const auto printActionName =
 			[&]()
 			{
-				m_outputStream << colorlog::Keyword("action") << "(";
+				m_outputStream << "action" << "[";
 
 				if (action->parameters.empty())
 				{
-					m_outputStream << *action << ")";
+					m_outputStream << action->name;
 					return;
 				}
 
-				m_outputStream << "(" << *action;
+				m_outputStream << action->name << "(";
 				translateVariablesForRuleHead(m_outputStream, action->parameters, variableIDs);
-				m_outputStream << "))";
+				m_outputStream << ")]";
 			};
 
 		const auto printPreconditionRuleBody =
@@ -340,16 +304,17 @@ void TranslatorASP::translateActions() const
 		m_outputStream << std::endl;
 
 		// Name
-		m_outputStream << colorlog::Function("action") << "(";
-		printActionName();
-		m_outputStream << ")";
+		//m_outputStream << colorlog::Function("action") << "(";
+
+		//m_outputStream << ")";
 
 		if (!action->parameters.empty())
 		{
-			m_outputStream << " :- ";
 			translateVariablesForRuleBody(m_outputStream, action->parameters, variableIDs);
-		}
 
+            m_outputStream << " :: ";
+		}
+        printActionName();
 		m_outputStream << ".";
 
 		// Precondition
