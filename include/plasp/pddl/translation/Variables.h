@@ -63,12 +63,14 @@ void translateVariablesForRuleBody(colorlog::ColorStream &outputStream, const T 
 			translateVariableDeclaration(outputStream, *variable, variableIDs);
 			outputStream << ", " << type->declaration->name << "]";
 		}
-		else
-		{
-            outputStream << colorlog::Function("TODO");
-            outputStream << colorlog::Function("has") << "(";
-			translateVariableDeclaration(outputStream, *variable, variableIDs);
-			outputStream << ", " << colorlog::Keyword("type") << "(" << colorlog::String("object") << "))";
+		else {
+            outputStream << "objects" << "[";
+            translateVariableDeclaration(outputStream, *variable, variableIDs);
+            outputStream << ", " << "object" << "]";
+//            outputStream << colorlog::Function("TODO");
+//            outputStream << colorlog::Function("has") << "(";
+//			translateVariableDeclaration(outputStream, *variable, variableIDs);
+//			outputStream << ", " << colorlog::Keyword("type") << "(" << colorlog::String("object") << "))";
 		}
 	}
 }
