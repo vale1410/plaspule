@@ -39,9 +39,9 @@ inline void translateGoal(colorlog::ColorStream &outputStream, const ::pddl::nor
 		{
 			ensureNoVariables(predicate);
 
-			outputStream << std::endl << colorlog::Function("goal") << "(";
+			outputStream << std::endl << "#ground goal" << "[";
 			translatePredicateToVariable(outputStream, *predicate, variableIDs, isPositive);
-			outputStream << ").";
+			outputStream << "].";
 		};
 
 	const auto handleNegatedPredicate =

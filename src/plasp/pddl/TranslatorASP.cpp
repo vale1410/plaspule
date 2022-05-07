@@ -123,7 +123,7 @@ void TranslatorASP::translateTypes() const
 		std::for_each(parentTypes.cbegin(), parentTypes.cend(),
 			[&](const auto &parentType)
 			{
-            m_outputStream << "#ground objects[" << type->name << "," << parentType->declaration->name << "]." << std::endl;
+            m_outputStream << "#ground type[" << type->name << "," << parentType->declaration->name << "]." << std::endl;
 			});
 	}
 }
@@ -280,25 +280,21 @@ void TranslatorASP::translateActions() const
 		const auto printActionName =
 			[&]()
 			{
-				m_outputStream << "action" << "[";
-
+				m_outputStream << action->name;
 				if (action->parameters.empty())
 				{
-					m_outputStream << action->name;
 					return;
 				}
-
-				m_outputStream << action->name << "(";
+				m_outputStream << "(";
 				translateVariablesForRuleHead(m_outputStream, action->parameters, variableIDs);
-				m_outputStream << ")]";
+				m_outputStream << ")";
 			};
 
 		const auto printPreconditionRuleBody =
 			[&]()
 			{
-				m_outputStream << " :- " << colorlog::Function("action") << "(";
-				printActionName();
-				m_outputStream << ")";
+                printActionName();
+                m_outputStream << " :: ";
 			};
 
 		m_outputStream << std::endl;
@@ -311,11 +307,12 @@ void TranslatorASP::translateActions() const
 		if (!action->parameters.empty())
 		{
 			translateVariablesForRuleBody(m_outputStream, action->parameters, variableIDs);
-
             m_outputStream << " :: ";
 		}
-        printActionName();
-		m_outputStream << ".";
+        m_outputStream << "#ground" << std::endl;
+        m_outputStream << "action[";
+		printActionName();
+		m_outputStream << "]," << std::endl;
 
 		// Precondition
 		if (action->precondition)
@@ -335,15 +332,14 @@ void TranslatorASP::translateActions() const
 
 void TranslatorASP::translateConstants(const std::string &heading, const ::pddl::normalizedAST::ConstantDeclarations &constants) const
 {
-	m_outputStream << colorlog::Heading2(heading.c_str());
+    m_outputStream << colorlog::Heading2(heading.c_str()) << std::endl;
 
 	for (const auto &constant : constants)
 	{
-		m_outputStream << std::endl
-			<< colorlog::Function("constant") << "("
-			<< colorlog::Keyword("constant") << "("
-			<< *constant
-			<< "))." << std::endl;
+//			<< colorlog::Function("constant") << "("
+//			<< colorlog::Keyword("constant") << "("
+//			<< *constant
+//			<< "))." << std::endl;
 
 		const auto &type = constant->type;
 
@@ -354,15 +350,12 @@ void TranslatorASP::translateConstants(const std::string &heading, const ::pddl:
 
 			const auto &primitveType = type.value().get<::pddl::normalizedAST::PrimitiveTypePointer>();
 
-			m_outputStream << colorlog::Function("has") << "("
-				<< colorlog::Keyword("constant") << "(" << *constant << "), "
-				<< colorlog::Keyword("type") << "(" << *primitveType << "))." << std::endl;
+            m_outputStream << "#ground objects[" << constant->name << ","  << primitveType->declaration->name << "]." << std::endl;
+
 		}
 		else
 		{
-			m_outputStream << colorlog::Function("has") << "("
-				<< colorlog::Keyword("constant") << "(" << *constant << "), "
-				<< colorlog::Keyword("type") << "(" << colorlog::String("object") << "))." << std::endl;
+            m_outputStream << "#ground objects[" << constant->name << ","  << "object" << "]." << std::endl;
 		}
 	}
 }
@@ -416,17 +409,17 @@ void TranslatorASP::translateInitialState() const
 	for (const auto &fact : facts)
 		::plasp::pddl::translateFact(m_outputStream, fact);
 
-	m_outputStream
-		<< std::endl << std::endl
-		<< colorlog::Function("initialState") << "("
-		<< colorlog::Variable("X") << ", "
-		<< colorlog::Keyword("value") << "(" << colorlog::Variable("X") << ", " << colorlog::Boolean("false") << ")) :- "
-		<< colorlog::Function("variable") << "(" << colorlog::Variable("X") << "), "
-		<< colorlog::Keyword("not") << " "
-		<< colorlog::Function("initialState") << "("
-		<< colorlog::Variable("X") << ", "
-		<< colorlog::Keyword("value") << "(" << colorlog::Variable("X") << ", " << colorlog::Boolean("true") << "))."
-		<< std::endl;
+//	m_outputStream
+//		<< std::endl << std::endl
+//		<< colorlog::Function("initialState") << "("
+//		<< colorlog::Variable("X") << ", "
+//		<< colorlog::Keyword("value") << "(" << colorlog::Variable("X") << ", " << colorlog::Boolean("false") << ")) :- "
+//		<< colorlog::Function("variable") << "(" << colorlog::Variable("X") << "), "
+//		<< colorlog::Keyword("not") << " "
+//		<< colorlog::Function("initialState") << "("
+//		<< colorlog::Variable("X") << ", "
+//		<< colorlog::Keyword("value") << "(" << colorlog::Variable("X") << ", " << colorlog::Boolean("true") << "))."
+//		<< std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

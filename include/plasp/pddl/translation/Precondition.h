@@ -30,13 +30,12 @@ inline void translatePrecondition(colorlog::ColorStream &outputStream,
 	const auto handlePredicate =
 		[&](const ::pddl::normalizedAST::PredicatePointer &predicate, bool isPositive = true)
 		{
-			outputStream << std::endl << colorlog::Function("precondition") << "(";
+            //printRuleBody();
+			outputStream << "pre" << "[";
 			printObjectName();
 			outputStream << ", ";
 			translatePredicateToVariable(outputStream, *predicate, variableIDs, isPositive);
-			outputStream << ")";
-			printRuleBody();
-			outputStream << ".";
+			outputStream << "],";
 		};
 
 	const auto handleNegatedPredicate =
@@ -84,11 +83,19 @@ inline void translatePrecondition(colorlog::ColorStream &outputStream,
 	const auto handleAnd =
 		[&](const ::pddl::normalizedAST::AndPointer<::pddl::normalizedAST::Literal> &and_)
 		{
-			for (const auto &argument : and_->arguments)
-				handleLiteral(argument);
+			for (const auto &argument : and_->arguments) {
+                handleLiteral(argument);
+                outputStream << std::endl;
+//                if (argument != and_->arguments.back()) {
+//                    o
+//                } else {
+//                    outputStream << "," << std::endl;
+//                }
+			}
 		};
 
 	precondition.match(handleLiteral, handleAnd);
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

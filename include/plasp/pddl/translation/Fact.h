@@ -20,7 +20,7 @@ namespace pddl
 
 inline void translateFact(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::Fact &fact)
 {
-	outputStream << std::endl << colorlog::Function("initialState") << "(";
+	outputStream << std::endl << "#ground init[" ;
 
 	VariableIDMap variableIDs;
 
@@ -62,7 +62,7 @@ inline void translateFact(colorlog::ColorStream &outputStream, const ::pddl::nor
 
 	fact.match(handleAtomicFormula, handleNot);
 
-	outputStream << ").";
+	outputStream << "].";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -12,7 +12,7 @@
 	       (holding ?x - block)
 	       )
 
-  (:action pick-up
+  (:action pick_up
 	     :parameters (?x - block)
 	     :precondition (and (clear ?x) (ontable ?x) (handempty))
 	     :effect
@@ -21,7 +21,7 @@
 		   (not (handempty))
 		   (holding ?x)))
 
-  (:action put-down
+  (:action put_down
 	     :parameters (?x - block)
 	     :precondition (holding ?x)
 	     :effect

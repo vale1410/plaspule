@@ -31,20 +31,20 @@ inline void translatePredicate(colorlog::ColorStream &outputStream, const ::pddl
 
 	if (arguments.empty())
 	{
-		outputStream << *predicate.declaration;
+		outputStream << predicate.declaration->name;
 		return;
 	}
 
-	outputStream << "(" << *predicate.declaration;
+    outputStream << predicate.declaration->name;
+    outputStream << "(";
 
 	for (const auto &argument : arguments)
 	{
-		outputStream << ", ";
 
 		const auto handleConstant =
 			[&](const ::pddl::normalizedAST::ConstantPointer &constant)
 			{
-				outputStream << colorlog::Keyword("constant") << "(" << *constant << ")";
+				outputStream << constant->declaration->name;
 			};
 
 		const auto handleVariable =
@@ -54,6 +54,9 @@ inline void translatePredicate(colorlog::ColorStream &outputStream, const ::pddl
 			};
 
 		argument.match(handleConstant, handleVariable);
+		if (&argument != &arguments.back()) {
+            outputStream << ",";
+		}
 	}
 
 	outputStream << ")";
@@ -67,7 +70,7 @@ inline void translatePredicateDeclaration(colorlog::ColorStream &outputStream, c
 
 	if (predicateDeclaration.parameters.empty())
 	{
-		outputStream << predicateDeclaration.name << ".";
+		outputStream << predicateDeclaration.name << "].";
 		return;
 	}
 
@@ -78,27 +81,15 @@ inline void translatePredicateDeclaration(colorlog::ColorStream &outputStream, c
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void translatePredicateToVariable(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::Predicate &predicate, VariableIDMap &variableIDs, bool isPositive = true)
+void translatePredicateToVariable(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::Predicate &predicate, VariableIDMap &variableIDs,bool isPositive = true)
 {
-	outputStream << colorlog::Keyword("variable") << "(";
+
 
 	translatePredicate(outputStream, predicate, variableIDs);
 
-	outputStream
-		<< "), "
-		<< colorlog::Keyword("value") << "("
-		<< colorlog::Keyword("variable") << "(";
+	if (isPositive) outputStream << "";
 
-	translatePredicate(outputStream, predicate, variableIDs);
 
-	outputStream << "), ";
-
-	if (isPositive)
-		outputStream << colorlog::Boolean("true");
-	else
-		outputStream << colorlog::Boolean("false");
-
-	outputStream << ")";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

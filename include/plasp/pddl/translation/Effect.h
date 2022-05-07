@@ -33,27 +33,33 @@ inline void translateEffect(colorlog::ColorStream &outputStream,
 	const auto handlePredicate =
 		[&](const ::pddl::normalizedAST::PredicatePointer &predicate, bool isPositive = true)
 		{
-			outputStream << std::endl << colorlog::Function("postcondition") << "(";
-			printObjectName();
-			outputStream
-				<< ", " << colorlog::Keyword("effect") << "("
-				<< colorlog::Reserved("unconditional") << ")"
-				<< ", ";
+//			outputStream << std::endl << colorlog::Function("postcondition") << "(";
+//			printObjectName();
+//			outputStream
+//				<< ", " << colorlog::Keyword("effect") << "("
+//				<< colorlog::Reserved("unconditional") << ")"
+//				<< ", ";
+            if (isPositive) {
+        		outputStream << std::endl << "pos" << "[";
+            } else {
+                outputStream << std::endl << "neg" << "[";
+            }
+            printObjectName();
+            outputStream << ", ";
 			translatePredicateToVariable(outputStream, *predicate, variableIDs, isPositive);
-			outputStream << ") :- " << colorlog::Function("action") << "(";
-			printObjectName();
-			outputStream << ")";
-
-			if (!variableStack.layers.empty())
-				for (const auto &layer : variableStack.layers)
-				{
-					if (!layer->empty())
-						outputStream << ", ";
-
-					translateVariablesForRuleBody(outputStream, *layer, variableIDs);
-				}
-
-			outputStream << ".";
+//			outputStream << ") :- " << colorlog::Function("action") << "(";
+//			printObjectName();
+//			outputStream << ")";
+//
+//			if (!variableStack.layers.empty())
+//				for (const auto &layer : variableStack.layers)
+//				{
+//					if (!layer->empty())
+//						outputStream << ", ";
+//
+//					translateVariablesForRuleBody(outputStream, *layer, variableIDs);
+//				}
+//
 		};
 
 	const auto handleNegatedPredicate =
@@ -96,9 +102,16 @@ inline void translateEffect(colorlog::ColorStream &outputStream,
 	const auto handleAnd =
 		[&](const ::pddl::normalizedAST::AndPointer<::pddl::normalizedAST::Effect> &and_)
 		{
-			for (const auto &argument : and_->arguments)
-				translateEffect(outputStream, argument, printObjectName, variableStack,
-					numberOfConditionalEffects, variableIDs);
+			for (const auto &argument : and_->arguments) {
+                translateEffect(outputStream, argument, printObjectName, variableStack,
+                                numberOfConditionalEffects, variableIDs);
+
+                if (argument != and_->arguments.back()) {
+                    outputStream << "],";
+                } else {
+                    outputStream << "]." << std::endl;
+                }
+            }
 		};
 
 	const auto handleForAll =
